@@ -71,15 +71,24 @@
   .logo-input { width: 100%; font-size: 11px; color: #ccc; background: rgba(255,255,255,0.05); border: 1px dashed rgba(212,175,55,0.3); border-radius: 8px; padding: 5px 8px; cursor: pointer; }
   .logo-url-input { width: 100%; font-size: 11px; color: #ccc; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.2); border-radius: 8px; padding: 5px 8px; margin-top: 4px; outline: none; }
   .logo-url-input::placeholder { color: #666; }
-  .search-wrap { max-width: 500px; margin: 0 auto 15px; position: relative; }
-  .search-input { width: 100%; padding: 12px 40px 12px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.3); border-radius: 12px; color: #fff; font-size: 14px; outline: none; transition: 0.3s; }
-  .search-input:focus { border-color: #d4af37; }
-  .search-input::placeholder { color: #666; }
-  .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #d4af37; font-size: 16px; pointer-events: none; }
-  .search-count { text-align: center; font-size: 11px; color: #aaa; margin-bottom: 10px; }
-  .card.hidden { display: none; }
-  .modal-confirm-input { width: 100%; margin-top: 10px; padding: 10px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(231,76,60,0.4); border-radius: 8px; color: #fff; font-size: 14px; text-align: center; outline: none; }
-  .modal-confirm-input::placeholder { color: #666; font-size: 12px; }
+  .btn-select-import { display: block; width: 100%; max-width: 500px; margin: 0 auto 10px; padding: 12px; background: transparent; color: #2ecc71; border: 1px solid #2ecc71; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+  .btn-select-import:hover { background: rgba(46,204,113,0.1); }
+  .select-import-toolbar { display: none; max-width: 500px; margin: 0 auto 15px; background: rgba(46,204,113,0.08); border: 1px solid rgba(46,204,113,0.3); border-radius: 12px; padding: 12px 15px; }
+  .select-import-toolbar.active { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+  .select-import-toolbar span { color: #2ecc71; font-size: 13px; font-weight: bold; }
+  .btn-add-selected { padding: 6px 12px; background: #27ae60; color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; }
+  .btn-add-selected:hover { background: #2ecc71; }
+  .btn-sel-import-all { padding: 6px 12px; background: rgba(46,204,113,0.15); color: #2ecc71; border: 1px solid #2ecc71; border-radius: 8px; font-size: 12px; cursor: pointer; }
+  .btn-sel-import-all:hover { background: rgba(46,204,113,0.3); }
+  .btn-cancel-import-sel { padding: 6px 12px; background: rgba(255,255,255,0.07); color: #aaa; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; font-size: 12px; cursor: pointer; }
+  .btn-cancel-import-sel:hover { background: rgba(255,255,255,0.12); }
+  .card.import-selectable { cursor: pointer; position: relative; }
+  .card.import-selectable:hover { border-color: #2ecc71; }
+  .card.import-selected { border-color: #2ecc71; background: rgba(46,204,113,0.08); }
+  .card-import-checkbox { display: none; position: absolute; top: 12px; right: 12px; width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-radius: 5px; background: transparent; transition: 0.2s; }
+  .card.import-selectable .card-import-checkbox { display: flex; align-items: center; justify-content: center; }
+  .card.import-selected .card-import-checkbox { background: #2ecc71; border-color: #2ecc71; }
+  .card.import-selected .card-import-checkbox::after { content: '✓'; color: #fff; font-size: 12px; font-weight: bold; }
 </style>
 </head>
 <body>
@@ -88,13 +97,18 @@
 <p class="subtitle">92 مطعم جاهزة للإضافة — 7 مطاعم بمنيو كامل + 85 مطعم جديد</p>
 
 <button class="btn-all" id="mainBtn" onclick="importAll()">➕ إضافة جميع المطاعم الآن</button>
+<button class="btn-select-import" id="selectImportBtn" onclick="toggleSelectImportMode()">☑️ الإضافة الاختيارية — اختر المطاعم</button>
+<div class="select-import-toolbar" id="selectImportToolbar">
+  <span id="selectedImportCount">0 مطعم محدد</span>
+  <div class="select-toolbar-btns">
+    <button class="btn-sel-import-all" onclick="selectAllImportCards()">تحديد الكل</button>
+    <button class="btn-sel-import-all" onclick="deselectAllImportCards()">إلغاء الكل</button>
+    <button class="btn-add-selected" onclick="importSelected()">➕ إضافة المحددين</button>
+    <button class="btn-cancel-import-sel" onclick="toggleSelectImportMode()">إلغاء</button>
+  </div>
+</div>
 <button class="btn-delete-all" id="deleteAllBtn" onclick="confirmDeleteAll()">🗑️ حذف جميع المطاعم</button>
 <button class="btn-select-mode" id="selectModeBtn" onclick="toggleSelectMode()">☑️ الحذف الاختياري — اختر المطاعم</button>
-<div class="search-wrap">
-  <span class="search-icon">🔍</span>
-  <input type="text" class="search-input" id="searchInput" placeholder="ابحث عن مطعم بالاسم..." oninput="filterCards()" />
-</div>
-<div class="search-count" id="searchCount"></div>
 <div class="select-toolbar" id="selectToolbar">
   <span id="selectedCount">0 مطعم محدد</span>
   <div class="select-toolbar-btns">
@@ -108,8 +122,7 @@
   <div class="modal-box">
     <h3 id="modalTitle">⚠️ تأكيد الحذف</h3>
     <p id="modalMsg">هل أنت متأكد؟ سيتم حذف جميع المطاعم من قاعدة البيانات بشكل نهائي.</p>
-    <input type="text" class="modal-confirm-input" id="modalConfirmInput" placeholder='اكتب "احذف" للتأكيد' oninput="checkDeleteConfirmWord()" />
-    <div class="modal-btns" style="margin-top:15px;">
+    <div class="modal-btns">
       <button class="btn-confirm-del" id="modalConfirmBtn" onclick="executeDelete()">نعم، احذف</button>
       <button class="btn-cancel-del" onclick="closeDeleteModal()">إلغاء</button>
     </div>
@@ -748,6 +761,7 @@ function buildCards() {
     div.id = 'card_' + i;
     div.innerHTML = `
       <div class="card-checkbox" id="chk_${i}"></div>
+      <div class="card-import-checkbox" id="ichk_${i}"></div>
       <div class="card-header">
         <div class="card-icon">${r.icon}</div>
         <div>
@@ -909,39 +923,10 @@ function deselectAllCards() {
   document.getElementById('selectedCount').innerText = '0 مطعم محدد';
 }
 
-function filterCards() {
-  const q = document.getElementById('searchInput').value.trim().toLowerCase();
-  const grid = document.getElementById('cardsGrid');
-  let visible = 0;
-  Array.from(grid.children).forEach((card, i) => {
-    const name = RESTAURANTS[i] ? RESTAURANTS[i].name.toLowerCase() : '';
-    if (!q || name.includes(q)) {
-      card.classList.remove('hidden');
-      visible++;
-    } else {
-      card.classList.add('hidden');
-    }
-  });
-  const countEl = document.getElementById('searchCount');
-  if (q) {
-    countEl.innerText = 'نتائج البحث: ' + visible + ' مطعم';
-  } else {
-    countEl.innerText = '';
-  }
-}
-
-function checkDeleteConfirmWord() {
-  const val = document.getElementById('modalConfirmInput').value.trim();
-  const btn = document.getElementById('modalConfirmBtn');
-  btn.disabled = (val !== 'احذف');
-}
-
 function confirmDeleteAll() {
   _deleteMode = 'all';
   document.getElementById('modalTitle').innerText = '⚠️ تأكيد حذف الكل';
   document.getElementById('modalMsg').innerText = 'هل أنت متأكد؟ سيتم حذف جميع المطاعم الـ ' + RESTAURANTS.length + ' من قاعدة البيانات بشكل نهائي ولا يمكن التراجع!';
-  document.getElementById('modalConfirmInput').value = '';
-  document.getElementById('modalConfirmBtn').disabled = true;
   document.getElementById('deleteModal').classList.add('open');
 }
 
@@ -953,15 +938,11 @@ function confirmDeleteSelected() {
   _deleteMode = 'selected';
   document.getElementById('modalTitle').innerText = '⚠️ تأكيد حذف المحددين';
   document.getElementById('modalMsg').innerText = 'سيتم حذف ' + _selectedIndexes.size + ' مطعم محدد من قاعدة البيانات بشكل نهائي. هل أنت متأكد؟';
-  document.getElementById('modalConfirmInput').value = '';
-  document.getElementById('modalConfirmBtn').disabled = true;
   document.getElementById('deleteModal').classList.add('open');
 }
 
 function closeDeleteModal() {
   document.getElementById('deleteModal').classList.remove('open');
-  document.getElementById('modalConfirmInput').value = '';
-  document.getElementById('modalConfirmBtn').disabled = true;
 }
 
 async function executeDelete() {
@@ -1049,6 +1030,135 @@ function handleLogoUrl(event, i) {
   } else {
     preview.classList.remove('show');
   }
+}
+
+// ======================================================
+// وظائف الإضافة الاختيارية
+// ======================================================
+let _importSelectModeActive = false;
+let _selectedImportIndexes = new Set();
+
+function toggleSelectImportMode() {
+  _importSelectModeActive = !_importSelectModeActive;
+  const toolbar = document.getElementById('selectImportToolbar');
+  const grid = document.getElementById('cardsGrid');
+  const btn = document.getElementById('selectImportBtn');
+  if (_importSelectModeActive) {
+    toolbar.classList.add('active');
+    btn.innerText = '✖️ إلغاء وضع الإضافة الاختيارية';
+    Array.from(grid.children).forEach((card, i) => {
+      card.classList.add('import-selectable');
+      card.onclick = () => toggleImportCardSelection(card, i);
+    });
+  } else {
+    toolbar.classList.remove('active');
+    btn.innerText = '☑️ الإضافة الاختيارية — اختر المطاعم';
+    _selectedImportIndexes.clear();
+    Array.from(grid.children).forEach((card) => {
+      card.classList.remove('import-selectable', 'import-selected');
+      card.onclick = null;
+    });
+    document.getElementById('selectedImportCount').innerText = '0 مطعم محدد';
+  }
+}
+
+function toggleImportCardSelection(card, i) {
+  if (_selectedImportIndexes.has(i)) {
+    _selectedImportIndexes.delete(i);
+    card.classList.remove('import-selected');
+  } else {
+    _selectedImportIndexes.add(i);
+    card.classList.add('import-selected');
+  }
+  document.getElementById('selectedImportCount').innerText = _selectedImportIndexes.size + ' مطعم محدد';
+}
+
+function selectAllImportCards() {
+  const grid = document.getElementById('cardsGrid');
+  Array.from(grid.children).forEach((card, i) => {
+    if (!card.classList.contains('hidden')) {
+      _selectedImportIndexes.add(i);
+      card.classList.add('import-selected');
+    }
+  });
+  document.getElementById('selectedImportCount').innerText = _selectedImportIndexes.size + ' مطعم محدد';
+}
+
+function deselectAllImportCards() {
+  const grid = document.getElementById('cardsGrid');
+  _selectedImportIndexes.clear();
+  Array.from(grid.children).forEach((card) => {
+    card.classList.remove('import-selected');
+  });
+  document.getElementById('selectedImportCount').innerText = '0 مطعم محدد';
+}
+
+async function importSelected() {
+  if (_selectedImportIndexes.size === 0) {
+    alert('لم تحدد أي مطعم للإضافة!');
+    return;
+  }
+  const btn = document.getElementById('selectImportBtn');
+  btn.disabled = true;
+  const selectedArr = Array.from(_selectedImportIndexes);
+
+  const { data: existing } = await _client.from('restaurants').select('name');
+  const existingNames = (existing || []).map(r => r.name);
+
+  let added = 0, skipped = 0, failed = 0;
+
+  for (let idx = 0; idx < selectedArr.length; idx++) {
+    const i = selectedArr[idx];
+    const r = RESTAURANTS[i];
+    setStatus(i, 'pending', '⏳ جاري الإضافة...');
+
+    if (existingNames.includes(r.name)) {
+      setStatus(i, 'exists', '✅ موجود مسبقاً — تم التخطي');
+      skipped++;
+      continue;
+    }
+
+    const restaurantLogo = _logoData[i] || r.logo || '';
+    const menuWithLogo = r.restaurant_menu.map(m => {
+      if (m.type === 'item' && !m.img && restaurantLogo) {
+        return Object.assign({}, m, { img: restaurantLogo });
+      }
+      return m;
+    });
+
+    const payload = {
+      name:            r.name,
+      branch:          r.branch,
+      logo:            restaurantLogo,
+      delivery_fee:    r.delivery_fee,
+      open_time:       r.open_time,
+      close_time:      r.close_time,
+      contract:        r.contract,
+      restaurant_menu: menuWithLogo,
+      profit_percent:  r.profit_percent,
+      maps_url:        r.maps_url,
+      specialty_type:  r.specialty_type,
+      profit_history:  r.profit_history,
+    };
+
+    const { error } = await _client.from('restaurants').insert([payload]);
+    if (error) {
+      setStatus(i, 'error', '❌ فشل: ' + error.message);
+      failed++;
+    } else {
+      const items = r.restaurant_menu.filter(m => m.type === 'item').length;
+      setStatus(i, 'success', `✅ تمت الإضافة — ${items} منتج`);
+      added++;
+    }
+  }
+
+  document.getElementById('selectedImportCount').innerText =
+    '✅ تمت إضافة ' + added + (skipped ? ' — تخطي ' + skipped : '') + (failed ? ' — فشل ' + failed : '');
+  btn.disabled = false;
+  _selectedImportIndexes.clear();
+  Array.from(document.getElementById('cardsGrid').children).forEach(card => {
+    card.classList.remove('import-selected');
+  });
 }
 
 buildCards();
