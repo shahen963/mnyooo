@@ -71,12 +71,10 @@
   .logo-input { width: 100%; font-size: 11px; color: #ccc; background: rgba(255,255,255,0.05); border: 1px dashed rgba(212,175,55,0.3); border-radius: 8px; padding: 5px 8px; cursor: pointer; }
   .logo-url-input { width: 100%; font-size: 11px; color: #ccc; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.2); border-radius: 8px; padding: 5px 8px; margin-top: 4px; outline: none; }
   .logo-url-input::placeholder { color: #666; }
-  .btn-gen-logo { width: 100%; margin-top: 6px; padding: 7px 10px; background: linear-gradient(135deg, #6c3483, #1a5276); color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .btn-gen-logo { width: 100%; margin-top: 6px; padding: 7px 10px; background: linear-gradient(135deg, #6c3483, #1a5276); color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.3s; }
   .btn-gen-logo:hover { background: linear-gradient(135deg, #8e44ad, #2980b9); }
   .btn-gen-logo:disabled { background: #444; color: #888; cursor: not-allowed; }
   .gen-logo-status { font-size: 10px; color: #aaa; margin-top: 4px; text-align: center; min-height: 14px; }
-  .logo-preview-gen { width: 80px; height: 80px; border-radius: 12px; object-fit: contain; border: 1px solid rgba(212,175,55,0.3); display: none; margin-bottom: 5px; background: rgba(255,255,255,0.05); }
-  .logo-preview-gen.show { display: block; }
   .btn-select-import { display: block; width: 100%; max-width: 500px; margin: 0 auto 10px; padding: 12px; background: transparent; color: #2ecc71; border: 1px solid #2ecc71; border-radius: 12px; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.3s; }
   .btn-select-import:hover { background: rgba(46,204,113,0.1); }
   .select-import-toolbar { display: none; max-width: 500px; margin: 0 auto 15px; background: rgba(46,204,113,0.08); border: 1px solid rgba(46,204,113,0.3); border-radius: 12px; padding: 12px 15px; }
@@ -784,7 +782,7 @@ function buildCards() {
         <img class="logo-preview" id="logo_preview_${i}" src="" alt="logo" />
         <input type="file" accept="image/*" class="logo-input" onchange="handleLogoFile(event, ${i})" />
         <input type="text" class="logo-url-input" id="logo_url_${i}" placeholder="أو أدخل رابط اللوغو مباشرة..." oninput="handleLogoUrl(event, ${i})" value="${r.logo || ''}" />
-        <button class="btn-gen-logo" onclick="generateLogoAI(${i})" id="gen_btn_${i}">🎨 إنشاء لوغو بالذكاء الاصطناعي</button>
+        <button class="btn-gen-logo" onclick="generateLogoLocal(${i})" id="gen_btn_${i}">🎨 إنشاء لوغو تلقائي</button>
         <div class="gen-logo-status" id="gen_status_${i}"></div>
       </div>
     `;
@@ -1170,9 +1168,9 @@ async function importSelected() {
 }
 
 // ======================================================
-// توليد اللوغو بالذكاء الاصطناعي
+// توليد اللوغو محلياً بدون API
 // ======================================================
-async function generateLogoAI(i) {
+function generateLogoLocal(i) {
   const r = RESTAURANTS[i];
   const btn = document.getElementById('gen_btn_' + i);
   const statusEl = document.getElementById('gen_status_' + i);
@@ -1180,56 +1178,72 @@ async function generateLogoAI(i) {
 
   btn.disabled = true;
   btn.innerText = '⏳ جاري الإنشاء...';
-  statusEl.innerText = 'يتم إنشاء لوغو مخصص لـ ' + r.name + ' ...';
 
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: `أنشئ لوغو SVG احترافي وجميل لمطعم اسمه: "${r.name}".
-متطلبات SVG:
-- viewBox="0 0 200 200"
-- خلفية دائرة أو شكل جميل بلون مناسب لنوع الطعام
-- اسم المطعم مكتوب داخله بخط واضح وجميل
-- إيموجي أو رمز يعبر عن نوع الطعام
-- ألوان متناسقة واحترافية
-- استخدم فقط عناصر SVG الأساسية (circle, rect, text, path)
-أعد SVG فقط بدون أي نص إضافي أو backticks.`
-        }]
-      })
-    });
+  const palettes = [
+    { bg1: '#1a0a2e', bg2: '#3d1a6e', accent: '#d4af37' },
+    { bg1: '#0a1a0a', bg2: '#1a4d1a', accent: '#f1c40f' },
+    { bg1: '#1a0a0a', bg2: '#6e1a1a', accent: '#e74c3c' },
+    { bg1: '#0a1a2e', bg2: '#1a3a6e', accent: '#3498db' },
+    { bg1: '#1a1a0a', bg2: '#4d4400', accent: '#f39c12' },
+    { bg1: '#0a1a1a', bg2: '#004d4d', accent: '#1abc9c' },
+    { bg1: '#2e0a1a', bg2: '#6e1a4d', accent: '#e91e8c' },
+    { bg1: '#1a0a1a', bg2: '#4a0a6e', accent: '#9b59b6' },
+    { bg1: '#0f0a00', bg2: '#3d2b00', accent: '#e67e22' },
+    { bg1: '#001a0a', bg2: '#003d1a', accent: '#27ae60' },
+  ];
+  const p = palettes[i % palettes.length];
 
-    const data = await response.json();
-    const svgText = data.content && data.content[0] && data.content[0].text ? data.content[0].text.trim() : '';
+  const cleanName = r.name.replace(/[^\u0600-\u06FFa-zA-Z\s\-]/g, '').trim();
+  const words = cleanName.split(/\s+/).filter(w => w.length > 0);
+  const initials = words.length >= 2
+    ? (words[0][0] + words[1][0]).toUpperCase()
+    : (words[0] ? words[0].substring(0, 2).toUpperCase() : '؟');
 
-    if (svgText && svgText.startsWith('<svg')) {
-      const svgBlob = new Blob([svgText], { type: 'image/svg+xml' });
-      const svgUrl = URL.createObjectURL(svgBlob);
-      _logoData[i] = svgUrl;
-      preview.src = svgUrl;
-      preview.classList.add('show');
-      document.getElementById('logo_url_' + i).value = '';
-      statusEl.innerText = '✅ تم إنشاء اللوغو بنجاح!';
-      statusEl.style.color = '#2ecc71';
-    } else if (data.error) {
-      statusEl.innerText = '❌ خطأ: ' + data.error.message;
-      statusEl.style.color = '#e74c3c';
-    } else {
-      statusEl.innerText = '⚠️ لم يتم إنشاء صورة صحيحة، حاول مجدداً.';
-      statusEl.style.color = '#f1c40f';
-    }
-  } catch (err) {
-    statusEl.innerText = '❌ فشل الاتصال: ' + err.message;
-    statusEl.style.color = '#e74c3c';
-  }
+  const displayName = r.name.length > 14 ? r.name.substring(0, 13) + '…' : r.name;
+  const emoji = r.icon || '🍽️';
+
+  const svg = `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="rbg${i}" cx="50%" cy="35%" r="75%">
+      <stop offset="0%" stop-color="${p.bg2}"/>
+      <stop offset="100%" stop-color="${p.bg1}"/>
+    </radialGradient>
+    <radialGradient id="rglow${i}" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="${p.accent}" stop-opacity="0.25"/>
+      <stop offset="100%" stop-color="${p.accent}" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow${i}">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="${p.accent}" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  <circle cx="100" cy="100" r="100" fill="url(#rbg${i})"/>
+  <circle cx="100" cy="88" r="75" fill="url(#rglow${i})"/>
+  <circle cx="100" cy="100" r="93" fill="none" stroke="${p.accent}" stroke-width="2.5" stroke-opacity="0.8"/>
+  <circle cx="100" cy="100" r="86" fill="none" stroke="${p.accent}" stroke-width="0.7" stroke-opacity="0.3"/>
+  <circle cx="100" cy="100" r="70" fill="none" stroke="${p.accent}" stroke-width="0.4" stroke-opacity="0.15"/>
+  <text x="100" y="90" font-size="46" text-anchor="middle" dominant-baseline="middle" filter="url(#shadow${i})">${emoji}</text>
+  <rect x="35" y="112" width="130" height="1.5" rx="1" fill="${p.accent}" opacity="0.6"/>
+  <text x="100" y="136" font-family="'Segoe UI', Tahoma, Arial, sans-serif" font-size="14" font-weight="bold"
+    text-anchor="middle" dominant-baseline="middle" fill="#ffffff">${displayName}</text>
+  <text x="100" y="160" font-family="'Segoe UI', Tahoma, Arial, sans-serif" font-size="11"
+    text-anchor="middle" dominant-baseline="middle" fill="${p.accent}" letter-spacing="3" opacity="0.85">${initials}</text>
+  <circle cx="55" cy="160" r="2.5" fill="${p.accent}" opacity="0.6"/>
+  <circle cx="145" cy="160" r="2.5" fill="${p.accent}" opacity="0.6"/>
+  <circle cx="65" cy="160" r="1.2" fill="${p.accent}" opacity="0.3"/>
+  <circle cx="135" cy="160" r="1.2" fill="${p.accent}" opacity="0.3"/>
+</svg>`;
+
+  const svgBlob = new Blob([svg], { type: 'image/svg+xml' });
+  const svgUrl = URL.createObjectURL(svgBlob);
+  _logoData[i] = svgUrl;
+  preview.src = svgUrl;
+  preview.classList.add('show');
+  document.getElementById('logo_url_' + i).value = '';
+  statusEl.innerText = '✅ تم إنشاء اللوغو!';
+  statusEl.style.color = '#2ecc71';
 
   btn.disabled = false;
-  btn.innerText = '🎨 إنشاء لوغو بالذكاء الاصطناعي';
+  btn.innerText = '🎨 إنشاء لوغو تلقائي';
 }
 
 buildCards();
