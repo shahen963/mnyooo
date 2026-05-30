@@ -64,6 +64,22 @@
   .btn-confirm-del:hover { background: #e74c3c; }
   .btn-cancel-del { padding: 10px 24px; background: rgba(255,255,255,0.07); color: #aaa; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; font-size: 14px; cursor: pointer; }
   .btn-cancel-del:hover { background: rgba(255,255,255,0.12); }
+  .logo-section { margin-top: 10px; border-top: 1px solid rgba(212,175,55,0.15); padding-top: 10px; }
+  .logo-label { font-size: 11px; color: #aaa; margin-bottom: 5px; display: block; }
+  .logo-preview { width: 48px; height: 48px; border-radius: 10px; object-fit: cover; border: 1px solid rgba(212,175,55,0.3); display: none; margin-bottom: 5px; }
+  .logo-preview.show { display: block; }
+  .logo-input { width: 100%; font-size: 11px; color: #ccc; background: rgba(255,255,255,0.05); border: 1px dashed rgba(212,175,55,0.3); border-radius: 8px; padding: 5px 8px; cursor: pointer; }
+  .logo-url-input { width: 100%; font-size: 11px; color: #ccc; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.2); border-radius: 8px; padding: 5px 8px; margin-top: 4px; outline: none; }
+  .logo-url-input::placeholder { color: #666; }
+  .search-wrap { max-width: 500px; margin: 0 auto 15px; position: relative; }
+  .search-input { width: 100%; padding: 12px 40px 12px 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(212,175,55,0.3); border-radius: 12px; color: #fff; font-size: 14px; outline: none; transition: 0.3s; }
+  .search-input:focus { border-color: #d4af37; }
+  .search-input::placeholder { color: #666; }
+  .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #d4af37; font-size: 16px; pointer-events: none; }
+  .search-count { text-align: center; font-size: 11px; color: #aaa; margin-bottom: 10px; }
+  .card.hidden { display: none; }
+  .modal-confirm-input { width: 100%; margin-top: 10px; padding: 10px 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(231,76,60,0.4); border-radius: 8px; color: #fff; font-size: 14px; text-align: center; outline: none; }
+  .modal-confirm-input::placeholder { color: #666; font-size: 12px; }
 </style>
 </head>
 <body>
@@ -74,6 +90,11 @@
 <button class="btn-all" id="mainBtn" onclick="importAll()">➕ إضافة جميع المطاعم الآن</button>
 <button class="btn-delete-all" id="deleteAllBtn" onclick="confirmDeleteAll()">🗑️ حذف جميع المطاعم</button>
 <button class="btn-select-mode" id="selectModeBtn" onclick="toggleSelectMode()">☑️ الحذف الاختياري — اختر المطاعم</button>
+<div class="search-wrap">
+  <span class="search-icon">🔍</span>
+  <input type="text" class="search-input" id="searchInput" placeholder="ابحث عن مطعم بالاسم..." oninput="filterCards()" />
+</div>
+<div class="search-count" id="searchCount"></div>
 <div class="select-toolbar" id="selectToolbar">
   <span id="selectedCount">0 مطعم محدد</span>
   <div class="select-toolbar-btns">
@@ -87,7 +108,8 @@
   <div class="modal-box">
     <h3 id="modalTitle">⚠️ تأكيد الحذف</h3>
     <p id="modalMsg">هل أنت متأكد؟ سيتم حذف جميع المطاعم من قاعدة البيانات بشكل نهائي.</p>
-    <div class="modal-btns">
+    <input type="text" class="modal-confirm-input" id="modalConfirmInput" placeholder='اكتب "احذف" للتأكيد' oninput="checkDeleteConfirmWord()" />
+    <div class="modal-btns" style="margin-top:15px;">
       <button class="btn-confirm-del" id="modalConfirmBtn" onclick="executeDelete()">نعم، احذف</button>
       <button class="btn-cancel-del" onclick="closeDeleteModal()">إلغاء</button>
     </div>
@@ -737,6 +759,12 @@ function buildCards() {
         ${cats.map(c => `<span class="sec-tag">${c.icon} ${c.name}</span>`).join('')}
       </div>
       <div class="status" id="status_${i}">—</div>
+      <div class="logo-section">
+        <span class="logo-label">🖼️ لوغو المطعم (اختياري — يُستخدم لجميع المنتجات بدون صورة)</span>
+        <img class="logo-preview" id="logo_preview_${i}" src="" alt="logo" />
+        <input type="file" accept="image/*" class="logo-input" onchange="handleLogoFile(event, ${i})" />
+        <input type="text" class="logo-url-input" id="logo_url_${i}" placeholder="أو أدخل رابط اللوغو مباشرة..." oninput="handleLogoUrl(event, ${i})" value="${r.logo || ''}" />
+      </div>
     `;
     grid.appendChild(div);
   });
@@ -769,15 +797,23 @@ async function importAll() {
       continue;
     }
 
+    const restaurantLogo = _logoData[i] || r.logo || '';
+    const menuWithLogo = r.restaurant_menu.map(m => {
+      if (m.type === 'item' && !m.img && restaurantLogo) {
+        return Object.assign({}, m, { img: restaurantLogo });
+      }
+      return m;
+    });
+
     const payload = {
       name:            r.name,
       branch:          r.branch,
-      logo:            r.logo,
+      logo:            restaurantLogo,
       delivery_fee:    r.delivery_fee,
       open_time:       r.open_time,
       close_time:      r.close_time,
       contract:        r.contract,
-      restaurant_menu: r.restaurant_menu,
+      restaurant_menu: menuWithLogo,
       profit_percent:  r.profit_percent,
       maps_url:        r.maps_url,
       specialty_type:  r.specialty_type,
@@ -873,10 +909,39 @@ function deselectAllCards() {
   document.getElementById('selectedCount').innerText = '0 مطعم محدد';
 }
 
+function filterCards() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const grid = document.getElementById('cardsGrid');
+  let visible = 0;
+  Array.from(grid.children).forEach((card, i) => {
+    const name = RESTAURANTS[i] ? RESTAURANTS[i].name.toLowerCase() : '';
+    if (!q || name.includes(q)) {
+      card.classList.remove('hidden');
+      visible++;
+    } else {
+      card.classList.add('hidden');
+    }
+  });
+  const countEl = document.getElementById('searchCount');
+  if (q) {
+    countEl.innerText = 'نتائج البحث: ' + visible + ' مطعم';
+  } else {
+    countEl.innerText = '';
+  }
+}
+
+function checkDeleteConfirmWord() {
+  const val = document.getElementById('modalConfirmInput').value.trim();
+  const btn = document.getElementById('modalConfirmBtn');
+  btn.disabled = (val !== 'احذف');
+}
+
 function confirmDeleteAll() {
   _deleteMode = 'all';
   document.getElementById('modalTitle').innerText = '⚠️ تأكيد حذف الكل';
   document.getElementById('modalMsg').innerText = 'هل أنت متأكد؟ سيتم حذف جميع المطاعم الـ ' + RESTAURANTS.length + ' من قاعدة البيانات بشكل نهائي ولا يمكن التراجع!';
+  document.getElementById('modalConfirmInput').value = '';
+  document.getElementById('modalConfirmBtn').disabled = true;
   document.getElementById('deleteModal').classList.add('open');
 }
 
@@ -888,11 +953,15 @@ function confirmDeleteSelected() {
   _deleteMode = 'selected';
   document.getElementById('modalTitle').innerText = '⚠️ تأكيد حذف المحددين';
   document.getElementById('modalMsg').innerText = 'سيتم حذف ' + _selectedIndexes.size + ' مطعم محدد من قاعدة البيانات بشكل نهائي. هل أنت متأكد؟';
+  document.getElementById('modalConfirmInput').value = '';
+  document.getElementById('modalConfirmBtn').disabled = true;
   document.getElementById('deleteModal').classList.add('open');
 }
 
 function closeDeleteModal() {
   document.getElementById('deleteModal').classList.remove('open');
+  document.getElementById('modalConfirmInput').value = '';
+  document.getElementById('modalConfirmBtn').disabled = true;
 }
 
 async function executeDelete() {
@@ -903,39 +972,95 @@ async function executeDelete() {
   if (_deleteMode === 'all') {
     document.getElementById('deleteAllBtn').disabled = true;
     document.getElementById('deleteAllBtn').innerText = '⏳ جاري الحذف...';
-    const namesToDelete = RESTAURANTS.map(r => r.name);
-    const { error } = await _client.from('restaurants').delete().in('name', namesToDelete);
-    if (error) {
-      alert('❌ فشل الحذف: ' + error.message);
-      document.getElementById('deleteAllBtn').innerText = '❌ فشل الحذف';
-    } else {
-      document.getElementById('deleteAllBtn').innerText = '✅ تم حذف جميع المطاعم';
+    let deletedCount = 0, failedCount = 0;
+    for (let i = 0; i < RESTAURANTS.length; i++) {
+      const { error } = await _client.from('restaurants').delete().eq('name', RESTAURANTS[i].name);
+      if (error) {
+        failedCount++;
+        setStatus(i, 'error', '❌ فشل الحذف: ' + error.message);
+      } else {
+        deletedCount++;
+        setStatus(i, 'error', '🗑️ تم الحذف');
+        const card = document.getElementById('card_' + i);
+        if (card) card.style.opacity = '0.4';
+      }
+      document.getElementById('deleteAllBtn').innerText = '⏳ جاري الحذف... ' + (i+1) + '/' + RESTAURANTS.length;
+    }
+    if (failedCount === 0) {
+      document.getElementById('deleteAllBtn').innerText = '✅ تم حذف ' + deletedCount + ' مطعم';
       document.getElementById('deleteAllBtn').style.background = '#2ecc71';
-      RESTAURANTS.forEach((r, i) => setStatus(i, 'error', '🗑️ تم الحذف'));
+    } else {
+      document.getElementById('deleteAllBtn').innerText = '⚠️ تم حذف ' + deletedCount + ' — فشل ' + failedCount;
     }
     document.getElementById('deleteAllBtn').disabled = false;
   } else {
     document.getElementById('selectModeBtn').disabled = true;
     const selectedArr = Array.from(_selectedIndexes);
-    const namesToDelete = selectedArr.map(i => RESTAURANTS[i].name);
-    const { error } = await _client.from('restaurants').delete().in('name', namesToDelete);
-    if (error) {
-      alert('❌ فشل الحذف: ' + error.message);
-    } else {
-      selectedArr.forEach(i => {
+    let deletedCount = 0, failedCount = 0;
+    for (let idx = 0; idx < selectedArr.length; idx++) {
+      const i = selectedArr[idx];
+      const { error } = await _client.from('restaurants').delete().eq('name', RESTAURANTS[i].name);
+      if (error) {
+        failedCount++;
+        setStatus(i, 'error', '❌ فشل الحذف: ' + error.message);
+      } else {
+        deletedCount++;
         const card = document.getElementById('card_' + i);
         if (card) card.style.opacity = '0.4';
         setStatus(i, 'error', '🗑️ تم الحذف');
-      });
-      document.getElementById('selectedCount').innerText = '✅ تم حذف ' + selectedArr.length + ' مطعم';
-      _selectedIndexes.clear();
+      }
     }
+    document.getElementById('selectedCount').innerText = failedCount === 0
+      ? '✅ تم حذف ' + deletedCount + ' مطعم'
+      : '⚠️ تم حذف ' + deletedCount + ' — فشل ' + failedCount;
+    _selectedIndexes.clear();
     document.getElementById('selectModeBtn').disabled = false;
   }
   confirmBtn.disabled = false;
 }
 
+// ======================================================
+// وظائف اللوغو
+// ======================================================
+const _logoData = {}; // تخزين base64 أو URL لكل مطعم بحسب index
+
+function handleLogoFile(event, i) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    _logoData[i] = e.target.result;
+    const preview = document.getElementById('logo_preview_' + i);
+    preview.src = e.target.result;
+    preview.classList.add('show');
+    document.getElementById('logo_url_' + i).value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleLogoUrl(event, i) {
+  const url = event.target.value.trim();
+  _logoData[i] = url;
+  const preview = document.getElementById('logo_preview_' + i);
+  if (url) {
+    preview.src = url;
+    preview.classList.add('show');
+    preview.onerror = () => preview.classList.remove('show');
+  } else {
+    preview.classList.remove('show');
+  }
+}
+
 buildCards();
+
+// بعد بناء الكروت، نعرض اللوغو الموجود مسبقاً في بيانات المطعم
+RESTAURANTS.forEach((r, i) => {
+  if (r.logo) {
+    _logoData[i] = r.logo;
+    const preview = document.getElementById('logo_preview_' + i);
+    if (preview) { preview.src = r.logo; preview.classList.add('show'); }
+  }
+});
 </script>
 </body>
 </html>
