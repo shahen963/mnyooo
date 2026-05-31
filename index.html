@@ -24,6 +24,9 @@
   .status.success  { display: block; background: rgba(46,204,113,0.15); color: #2ecc71; border: 1px solid #2ecc71; }
   .status.error    { display: block; background: rgba(231,76,60,0.15);  color: #e74c3c; border: 1px solid #e74c3c; }
   .status.exists   { display: block; background: rgba(52,152,219,0.15); color: #3498db; border: 1px solid #3498db; }
+  .btn-single { width: 100%; margin-top: 10px; padding: 9px; background: rgba(212,175,55,0.15); color: #d4af37; border: 1px solid rgba(212,175,55,0.5); border-radius: 9px; font-size: 13px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+  .btn-single:hover { background: rgba(212,175,55,0.3); }
+  .btn-single:disabled { background: rgba(255,255,255,0.05); color: #555; border-color: #333; cursor: not-allowed; }
   .btn-all { display: block; width: 100%; max-width: 500px; margin: 0 auto 20px; padding: 16px; background: #d4af37; color: #000; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
   .btn-all:hover { background: #f1d279; }
   .btn-all:disabled { background: #555; color: #888; cursor: not-allowed; }
@@ -37,7 +40,7 @@
 <body>
 
 <h1>🦅 استيراد المطاعم — شاهين إكسبريس</h1>
-<p class="subtitle">7 مطاعم جاهزة للإضافة مع منيوهم الكامل بالأقسام والأسعار</p>
+<p class="subtitle">8 مطاعم جاهزة للإضافة مع منيوهم الكامل بالأقسام والأسعار</p>
 
 <button class="btn-all" id="mainBtn" onclick="importAll()">➕ إضافة جميع المطاعم الآن</button>
 
@@ -573,6 +576,100 @@ const RESTAURANTS = [
     ]
   },
 
+
+  // ==================== 8. سيتي برغر ====================
+  {
+    name: 'سيتي برغر',
+    icon: '🍔',
+    branch: 'الفرع الرئيسي',
+    logo: '',
+    delivery_fee: 5000,
+    open_time: '10:00',
+    close_time: '24:00',
+    contract: '',
+    profit_percent: 10,
+    maps_url: '',
+    specialty_type: 'restaurant',
+    profit_history: [],
+    restaurant_menu: [
+      { type:'cat', id:'cat_burger_beef',  name:'برغر لحم',       icon:'🍔' },
+      { type:'cat', id:'cat_burger_chk',   name:'برغر دجاج',      icon:'🍗' },
+      { type:'cat', id:'cat_kids',         name:'وجبات الأطفال',  icon:'👶' },
+      { type:'cat', id:'cat_meals',        name:'وجبات سيتي',     icon:'🍱' },
+      { type:'cat', id:'cat_appetizers',   name:'المقبلات',       icon:'🥗' },
+      { type:'cat', id:'cat_salads',       name:'السلطات',        icon:'🥙' },
+      { type:'cat', id:'cat_drinks',       name:'المشروبات',      icon:'🥤' },
+
+      // برغر لحم
+      { type:'item', cid:'cat_burger_beef', n:'بيكن تشيز برغر لحم',     p:0, img:'', desc:'قطعة لحم - بيكن بقري - مخلل امريكي - خس - جبنة شيدر - مايونيز - باربكيو', extras:'' },
+      { type:'item', cid:'cat_burger_beef', n:'أورجينال كلاسيك برغر لحم', p:0, img:'', desc:'قطعة لحم - بندورة - بصل - خس - مخلل - جبنة شيدر - صوص كوكتيل', extras:'' },
+      { type:'item', cid:'cat_burger_beef', n:'شيلي هوت برغر لحم',       p:0, img:'', desc:'قطعة لحم - فليفلة خضراء - جالبينو - بصل - جبنة شيدر - صوص حار جدا', extras:'' },
+      { type:'item', cid:'cat_burger_beef', n:'فايف شيز برغر لحم',       p:0, img:'', desc:'قطعة لحم - مخلل - خس - جبنة ايمنتال - جبنة بارميزان - جبنة ريكفورد - جبنة موزاريلا - جبنة شيدر - مايونيز', extras:'' },
+      { type:'item', cid:'cat_burger_beef', n:'موزاريلا تشيز برغر لحم',  p:0, img:'', desc:'قطعة لحم - مخلل - خس - بندورة - قطعة موزاريلا مقلية - مايونيز', extras:'' },
+      { type:'item', cid:'cat_burger_beef', n:'غرين برغر لحم',           p:0, img:'', desc:'قطعة لحم - بصل - جرجير - جبنة افنتال - جبنة شيدر - مايونيز - حردل', extras:'' },
+      { type:'item', cid:'cat_burger_beef', n:'هني برغر لحم',            p:0, img:'', desc:'قطعة لحم - فطر فريش - بصل مقلي - خس - جبنة شيدر - صوص هني ماسترد', extras:'' },
+      { type:'item', cid:'cat_burger_beef', n:'ميكس برغر لحم',           p:0, img:'', desc:'قطعة لحم - مخلل - خس - فطر فريش - بصل مقلي - صوص ميكس خاص', extras:'' },
+      { type:'item', cid:'cat_burger_beef', n:'هيلثي برغر لحم',          p:0, img:'', desc:'قطعة لحم مشوي - بندورة - خس - بصل - فطر - قطعة جبنة - مايونيز خفيف صحي - توست خاص', extras:'' },
+      { type:'item', cid:'cat_burger_beef', n:'شيبس برغر لحم',           p:0, img:'', desc:'', extras:'' },
+      { type:'item', cid:'cat_burger_beef', n:'سماش لحم',                p:61000, img:'', desc:'قطعتين من اللحم مع مايونيز ومخلل وجبنة شيدر', extras:'' },
+      { type:'item', cid:'cat_burger_beef', n:'سيتي باربكيو لحم',        p:0, img:'', desc:'بصل فليفله مع صوص باربكيو خاص وجرجير وجبنة شيدر', extras:'' },
+
+      // برغر دجاج
+      { type:'item', cid:'cat_burger_chk', n:'بيكن تشيز برغر دجاج',     p:0, img:'', desc:'قطعة دجاج - بيكن بقري - مخلل امريكي - خس - جبنة شيدر - مايونيز - باربكيو', extras:'' },
+      { type:'item', cid:'cat_burger_chk', n:'أورجينال كلاسيك برغر دجاج', p:0, img:'', desc:'قطعة دجاج - بندورة - بصل - خس - مخلل - جبنة شيدر - صوص كوكتيل', extras:'' },
+      { type:'item', cid:'cat_burger_chk', n:'شيلي هوت برغر دجاج',       p:0, img:'', desc:'قطعة دجاج - فليفلة خضراء - جالبينو - بصل - جبنة شيدر - صوص حار جدا', extras:'' },
+      { type:'item', cid:'cat_burger_chk', n:'فايف شيز برغر دجاج',       p:0, img:'', desc:'قطعة دجاج - مخلل - خس - جبنة ايمنتال - جبنة بارميزان - جبنة ريكفورد - جبنة موزاريلا - جبنة شيدر - مايونيز', extras:'' },
+      { type:'item', cid:'cat_burger_chk', n:'موزاريلا تشيز برغر دجاج',  p:0, img:'', desc:'قطعة دجاج - مخلل - خس - بندورة - قطعة موزاريلا مقلية - مايونيز', extras:'' },
+      { type:'item', cid:'cat_burger_chk', n:'غرين برغر دجاج',           p:0, img:'', desc:'قطعة دجاج - بصل - جرجير - جبنة افنتال - جبنة شيدر - مايونيز - خردل', extras:'' },
+      { type:'item', cid:'cat_burger_chk', n:'هني برغر دجاج',            p:0, img:'', desc:'قطعة دجاج - فطر فريش - بصل مقلي - خس - جبنة شيدر - صوص هني ماسترد', extras:'' },
+      { type:'item', cid:'cat_burger_chk', n:'ميكس برغر دجاج',           p:0, img:'', desc:'قطعة دجاج - مخلل - خس - فطر فريش - بصل مقلي - صوص ميكس خاص', extras:'' },
+      { type:'item', cid:'cat_burger_chk', n:'هيلثي برغر دجاج',          p:0, img:'', desc:'قطعة دجاج مشوي - بندورة - خس - بصل - فطر - قطعة جبنة - مايونيز خفيف صحي - توست خاص', extras:'' },
+      { type:'item', cid:'cat_burger_chk', n:'شيبس برغر دجاج',           p:0, img:'', desc:'', extras:'' },
+      { type:'item', cid:'cat_burger_chk', n:'بينك سيتي',                p:0, img:'', desc:'قطعة دجاج مقلي - صوص بينك - ببروني - مخلل - خس - جبنة', extras:'' },
+      { type:'item', cid:'cat_burger_chk', n:'سيتي باربكيو دجاج',        p:0, img:'', desc:'بصل فليفله صوص باربكيو خاص جرجير وجبنة شيدر', extras:'' },
+      { type:'item', cid:'cat_burger_chk', n:'ناشفيل برجر',              p:63000, img:'', desc:'قطعة دجاج مقلية متبلة بصوص الحار وكول السلو مع الهالبينو وجبنة الشيدر والمايونيز', extras:'' },
+
+      // وجبات الأطفال
+      { type:'item', cid:'cat_kids', n:'برغر للأطفال',       p:0,     img:'', desc:'كلاسيك برغر', extras:'' },
+      { type:'item', cid:'cat_kids', n:'سلايدر برغر دجاج',   p:80000, img:'', desc:'أربع قطع برغر ميني', extras:'' },
+      { type:'item', cid:'cat_kids', n:'سلايدر برغر لحم',    p:0,     img:'', desc:'أربع قطع ميني برغر - اللحم مشوي حصرا', extras:'' },
+
+      // وجبات سيتي
+      { type:'item', cid:'cat_meals', n:'قطع الدجاج المقرمش', p:0,     img:'', desc:'أربع قطع من الكريسبي مع الصوص الخاص', extras:'' },
+      { type:'item', cid:'cat_meals', n:'كرات الدجاج',         p:0,     img:'', desc:'قطع من الدجاج المقلي المقرمش مع الصوص الخاص', extras:'' },
+      { type:'item', cid:'cat_meals', n:'وجبة روبيان سيتي',   p:62000, img:'', desc:'10 قطع مع بطاطا وصوص', extras:'' },
+
+      // مقبلات
+      { type:'item', cid:'cat_appetizers', n:'موزاريلا ستيك',      p:35000, img:'', desc:'أربع أصابع جبنة مقلية مقرمشة مع الصوص الخاص', extras:'' },
+      { type:'item', cid:'cat_appetizers', n:'صحن بطاطا شيدر',     p:42000, img:'', desc:'بطاطا مقلية مع صوص الشيدر', extras:'' },
+      { type:'item', cid:'cat_appetizers', n:'مكسيكان بطاطا',      p:35000, img:'', desc:'بطاطا - صوص شيدر - باربكيو - كوكتيل - جالبينو', extras:'' },
+      { type:'item', cid:'cat_appetizers', n:'تشكن كريسبي فرايز',  p:50000, img:'', desc:'بطاطا مقلية مع قطع الدجاج مع صوص الداينمت والبصل المقلي', extras:'' },
+      { type:'item', cid:'cat_appetizers', n:'حلقات البصل',        p:18000, img:'', desc:'15 قطعة من حلقات البصل مع الصوص الخاص', extras:'' },
+      { type:'item', cid:'cat_appetizers', n:'جوانح',              p:37000, img:'', desc:'ست قطع من الجوانح', extras:'' },
+      { type:'item', cid:'cat_appetizers', n:'علبة صوص',           p:4000,  img:'', desc:'', extras:'' },
+      { type:'item', cid:'cat_appetizers', n:'ماك بولز',           p:40000, img:'', desc:'', extras:'' },
+      { type:'item', cid:'cat_appetizers', n:'علبة صوص شيدر',      p:5000,  img:'', desc:'', extras:'' },
+      { type:'item', cid:'cat_appetizers', n:'صحن بطاطا فرايز',    p:30000, img:'', desc:'', extras:'' },
+      { type:'item', cid:'cat_appetizers', n:'مكرونا سيتي',        p:27000, img:'', desc:'معكرونة باردة مع صوص خاص ودرة', extras:'' },
+      { type:'item', cid:'cat_appetizers', n:'مكرونا تشيز سيتي',   p:58000, img:'', desc:'بطاطا - دجاج - مايونيز - معكرونة مع شيدر', extras:'' },
+      { type:'item', cid:'cat_appetizers', n:'علبة مايونيز',       p:4000,  img:'', desc:'', extras:'' },
+
+      // سلطات
+      { type:'item', cid:'cat_salads', n:'سلطة سيزر',         p:0,     img:'', desc:'خس وذرة - توست محمص - جبنة بارميزان - صوص سيزر', extras:'' },
+      { type:'item', cid:'cat_salads', n:'تشكن سيزر سلاد',    p:35000, img:'', desc:'100 غرام دجاج مشوي - خس - ذرة - بندورة كرزية - توست - جبنة بارميزان - صوص سيزر', extras:'' },
+      { type:'item', cid:'cat_salads', n:'سلطة باستا التونة', p:35000, img:'', desc:'خس - ذرة - فطر - جزر - بندورة كرزية - باستا تونا - صوص خاص', extras:'' },
+      { type:'item', cid:'cat_salads', n:'علبة سلطة كول سلو', p:22000, img:'', desc:'', extras:'' },
+
+      // مشروبات
+      { type:'item', cid:'cat_drinks', n:'بيبسي تنك',   p:8000,  img:'', desc:'', extras:'' },
+      { type:'item', cid:'cat_drinks', n:'سفن أب تنك',  p:8000,  img:'', desc:'', extras:'' },
+      { type:'item', cid:'cat_drinks', n:'لتر بيبسي',   p:10000, img:'', desc:'', extras:'' },
+      { type:'item', cid:'cat_drinks', n:'مياه صغيرة',  p:3000,  img:'', desc:'', extras:'' },
+      { type:'item', cid:'cat_drinks', n:'ببسي جامبو',  p:18000, img:'', desc:'', extras:'' },
+      { type:'item', cid:'cat_drinks', n:'مياه كبيرة',  p:6000,  img:'', desc:'', extras:'' },
+    ]
+  },
+
 ]; // نهاية RESTAURANTS
 
 
@@ -599,6 +696,7 @@ function buildCards() {
         ${cats.map(c => `<span class="sec-tag">${c.icon} ${c.name}</span>`).join('')}
       </div>
       <div class="status" id="status_${i}">—</div>
+      <button class="btn-single" id="btn_${i}" onclick="importOne(${i})">➕ إضافة لحاله</button>
     `;
     grid.appendChild(div);
   });
@@ -608,6 +706,48 @@ function setStatus(i, type, msg) {
   const el = document.getElementById('status_' + i);
   el.className = 'status ' + type;
   el.innerText = msg;
+}
+
+async function importOne(i) {
+  const r = RESTAURANTS[i];
+  const btn = document.getElementById('btn_' + i);
+  btn.disabled = true;
+  btn.innerText = '⏳ جاري الإضافة...';
+
+  const { data: existing } = await _client.from('restaurants').select('name');
+  const existingNames = (existing || []).map(x => x.name);
+
+  if (existingNames.includes(r.name)) {
+    setStatus(i, 'exists', '✅ موجود مسبقاً');
+    btn.innerText = '✅ موجود';
+    return;
+  }
+
+  const payload = {
+    name:            r.name,
+    branch:          r.branch,
+    logo:            r.logo,
+    delivery_fee:    r.delivery_fee,
+    open_time:       r.open_time,
+    close_time:      r.close_time,
+    contract:        r.contract,
+    restaurant_menu: r.restaurant_menu,
+    profit_percent:  r.profit_percent,
+    maps_url:        r.maps_url,
+    specialty_type:  r.specialty_type,
+    profit_history:  r.profit_history,
+  };
+
+  const { error } = await _client.from('restaurants').insert([payload]);
+  if (error) {
+    setStatus(i, 'error', '❌ فشل: ' + error.message);
+    btn.disabled = false;
+    btn.innerText = '🔄 أعد المحاولة';
+  } else {
+    const items = r.restaurant_menu.filter(m => m.type === 'item').length;
+    setStatus(i, 'success', `✅ تمت الإضافة — ${items} منتج`);
+    btn.innerText = '✅ تمت الإضافة';
+  }
 }
 
 async function importAll() {
